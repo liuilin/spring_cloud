@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Api(tags = "订单支付")
-@RequestMapping("/order/pay/info")
+@RequestMapping("/pay")
 public class OrderPayInfoController {
 
     @Autowired

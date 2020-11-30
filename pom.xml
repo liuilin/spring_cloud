@@ -10,7 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>cloud-consumer-order8080</module>
-        <module>cloud-provider-payment8001</module>
+        <module>cloud-provider-payment8081</module>
     </modules>
 
     <!--统一管理jar包版本-->

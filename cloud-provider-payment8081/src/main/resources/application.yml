@@ -1,8 +1,8 @@
 server:
-  port: 8001
+  port: 8081
 spring:
   application:
-    name: cloud-provider-payment8001
+    name: cloud-provider-payment8081
   datasource:
     url: jdbc:mysql://47.108.59.71:3306/open_shop_order?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&failOverReadOnly=false&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true
     driver-class-name: com.mysql.cj.jdbc.Driver
