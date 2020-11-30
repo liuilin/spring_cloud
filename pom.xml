@@ -11,6 +11,7 @@
     <modules>
         <module>cloud-consumer-order8080</module>
         <module>cloud-provider-payment8081</module>
+        <module>cloud-api-commons</module>
     </modules>
 
     <!--统一管理jar包版本-->
@@ -114,7 +115,7 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
-                <scope>provided</scope>
+<!--                <scope>provided</scope>-->
             </dependency>
 
 

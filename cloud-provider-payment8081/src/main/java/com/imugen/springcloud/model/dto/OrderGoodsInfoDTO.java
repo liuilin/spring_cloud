@@ -1,10 +1,9 @@
 package com.imugen.springcloud.model.dto;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -20,8 +19,9 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value="OrderGoodsInfoDO传输对象")
-public class OrderGoodsInfoDTO{
+@ApiModel(value = "OrderGoodsInfoDO传输对象")
+public class OrderGoodsInfoDTO {
+
     @ApiModelProperty(value = "自增id")
     private Long id;
 
