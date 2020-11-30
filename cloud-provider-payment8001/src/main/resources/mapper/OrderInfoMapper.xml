@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imugen.springcloud.mapper.OrderInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.imugen.springcloud.model.entity.OrderInfoDO">
+        <id column="id" property="id" />
+        <result column="trade_no" property="tradeNo" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName" />
+        <result column="user_phone" property="userPhone" />
+        <result column="total_amount" property="totalAmount" />
+        <result column="is_open_member" property="isOpenMember" />
+        <result column="member_amount" property="memberAmount" />
+        <result column="should_amount" property="shouldAmount" />
+        <result column="status" property="status" />
+        <result column="is_refund" property="isRefund" />
+        <result column="create_time" property="createTime" />
+        <result column="modify_time" property="modifyTime" />
+        <result column="type" property="type" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, trade_no, user_id, user_name, user_phone, total_amount, is_open_member, member_amount, should_amount, status, is_refund, create_time, modify_time, type
+    </sql>
+
+</mapper>

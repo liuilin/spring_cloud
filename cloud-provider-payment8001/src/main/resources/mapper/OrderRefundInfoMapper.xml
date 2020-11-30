@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.imugen.springcloud.mapper.OrderRefundInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.imugen.springcloud.model.entity.OrderRefundInfoDO">
+        <id column="id" property="id" />
+        <result column="trade_no" property="tradeNo" />
+        <result column="refund_amount" property="refundAmount" />
+        <result column="pay_model" property="payModel" />
+        <result column="account" property="account" />
+        <result column="bill" property="bill" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="modify_time" property="modifyTime" />
+        <result column="creater_id" property="createrId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, trade_no, refund_amount, pay_model, account, bill, remark, create_time, modify_time, creater_id
+    </sql>
+
+</mapper>

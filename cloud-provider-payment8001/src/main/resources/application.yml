@@ -1,0 +1,18 @@
+server:
+  port: 8001
+spring:
+  application:
+    name: cloud-provider-payment8001
+  datasource:
+    url: jdbc:mysql://47.108.59.71:3306/open_shop_order?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&failOverReadOnly=false&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: u9ABW3U4
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 25
+      auto-commit: true
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
