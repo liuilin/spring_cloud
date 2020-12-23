@@ -1,0 +1,336 @@
+package com.imugen.springcloud.model.handle;
+
+
+import com.imugen.springcloud.model.enums.Api;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+/**
+ * Optionals的扩展或代替
+ *
+ * @author liuqiang
+ * @since 2020/11/9 下午8:02
+ */
+@SuppressWarnings("unused")
+public final class OptionalExt<T> {
+
+    /**
+     * 数据值
+     */
+    final T value;
+
+//    Optionals(T value) {
+//        this.value = value;
+//    }
+
+    /**
+     * 空 Optional 对象
+     */
+    private static final OptionalExt<?> EMPTY = of(null);
+
+    /**
+     * 构造一个为空值Optionals
+     *
+     * @param <T> 空值泛型
+     * @return Optionals
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> OptionalExt<T> empty() {
+        return (OptionalExt<T>) EMPTY;
+    }
+
+    /**
+     * 构造一个带值对象
+     *
+     * @param value 值
+     * @param <T>   值泛型
+     * @return Optionals<T>
+     */
+    public static <T> OptionalExt<T> of(T value) {
+        return new OptionalExt<>(value);
+    }
+
+    /**
+     * Constructs an instance with the described value.
+     *
+     * @param value the non-{@code null} value to describe
+     * @throws NullPointerException if value is {@code null}
+     */
+    private OptionalExt(T value) {
+        this.value = Objects.requireNonNull(value);
+    }
+
+
+    /**
+     * 获取值
+     *
+     * @return T
+     */
+    public T get() {
+        if (value == null) {
+            throw new NoSuchElementException("No value present");
+        }
+        return value;
+    }
+
+    /**
+     * 获得不可能为空的值，否则空指针异常
+     *
+     * @return 值
+     */
+    public T getRequire() {
+        return Objects.requireNonNull(value);
+    }
+
+    /**
+     * 获得Optionals如果值为空返回or的Optionals
+     *
+     * @param supplier 返回or的Optionals
+     * @return Optionals
+     */
+    @SuppressWarnings("unchecked")
+    public OptionalExt<T> or(Supplier<OptionalExt<? super T>> supplier) {
+        return isPresent() ? this : (OptionalExt<T>) supplier.get();
+    }
+
+    /**
+     * 如果值为空则执行 并获得然后执行方法
+     *
+     * @param supplier 执行方法 () -> r
+     * @return Then
+     */
+    @SuppressWarnings("unchecked")
+    public OptionalExt<T> orGet(Supplier<? super T> supplier) {
+        return isPresent() ? this : of((T) supplier.get());
+    }
+
+    /**
+     * 获得值，如果值为空返回{elseValue}否则值
+     *
+     * @param elseValue 否则值
+     * @return 值
+     */
+    public T orElse(T elseValue) {
+        return isPresent() ? value : elseValue;
+    }
+
+    /**
+     * 获得值，如果值为空返回{elseValue}否则值
+     *
+     * @param supplier 否则执行方法获得值
+     * @return 值
+     */
+    @SuppressWarnings("unchecked")
+    public T orElseGet(Supplier<? super T> supplier) {
+        return isPresent() ? value : (T) supplier.get();
+    }
+
+    /**
+     * 获得值，如果值为空则抛出异常
+     *
+     * @return 值
+     */
+    public T orElseThrow() {
+        if (isEmpty()) {
+            Work.errThrow();
+        }
+        return value;
+    }
+
+    /**
+     * 获得值，如果值为空则抛出指定Work信息异常
+     *
+     * @param api {@link Api} 指定的Work信息异常
+     * @return 值
+     */
+    public T orElseThrow(Api api) {
+        Work.isNullThrow(value, api);
+        return value;
+    }
+
+    /**
+     * 值是否不为空
+     *
+     * @return true 有值 false 空
+     */
+    public boolean isPresent() {
+        return value != null;
+    }
+
+    /**
+     * 值是否为空
+     *
+     * @return true 空 false 有值
+     */
+    public boolean isEmpty() {
+        return value == null;
+    }
+
+    /**
+     * 根据条件过滤，数据不为空并且方法执行为真，才会执行后续
+     *
+     * @param predicate 判断方法 t -> true
+     * @return 带有值的 ElseValue
+     */
+    public OptionalExt<T> filter(Predicate<? super T> predicate) {
+        return this.isPresent() ? predicate.test(value) ? this : empty() : empty();
+    }
+
+    /**
+     * 满足判断方法并返回原本Optionals
+     *
+     * @param predicate 判断方法 t -> true
+     * @param consumer  执行方法 t -> {}
+     * @return 原本Optionals
+     */
+    public OptionalExt<T> filterPeek(Predicate<? super T> predicate, Consumer<? super T> consumer) {
+        if (isPresent()) if (predicate.test(value)) consumer.accept(value);
+        return this;
+    }
+
+    /**
+     * 满足判断方法抛出非法异常
+     *
+     * @param predicate 判断方法
+     * @return 原本Optionals
+     */
+    public OptionalExt<T> filterThrow(Predicate<? super T> predicate) {
+        if (isPresent()) if (predicate.test(value)) Work.errThrow(Api.Default.IllegalOperation);
+        return this;
+    }
+
+    /**
+     * 满足判断方法抛出异常
+     *
+     * @param predicate 判断方法
+     * @param api       异常
+     * @return 原本Optionals
+     */
+    public OptionalExt<T> filterThrow(Predicate<? super T> predicate, Api api) {
+        if (isPresent()) if (predicate.test(value)) Work.errThrow(api);
+        return this;
+    }
+
+    /**
+     * 执行方法并返回原本Optionals
+     *
+     * @param consumer 执行方法 t -> {}
+     * @return 原本Optionals
+     */
+    public OptionalExt<T> peek(Consumer<? super T> consumer) {
+        if (isPresent()) consumer.accept(value);
+        return this;
+    }
+
+    /**
+     * 执行方法并获得方法的返回结果
+     *
+     * @param function 执行方法 t -> r
+     * @param <R>      返回值泛型
+     * @return Optionals<R>
+     */
+    public <R> OptionalExt<R> map(Function<? super T, ? extends R> function) {
+        return isPresent() ? of(function.apply(value)) : empty();
+    }
+
+    /**
+     * 如果值不为空执行方法并获得方法的返回结果
+     *
+     * @param function 执行方法 t -> r
+     * @param <R>      返回值泛型
+     * @return Optionals<R>
+     */
+    @SuppressWarnings("unchecked")
+    public <R> OptionalExt<R> flatMap(Function<? super T, OptionalExt<? extends R>> function) {
+        return isPresent() ? (OptionalExt<R>) function.apply(value) : empty();
+    }
+
+    /**
+     * 如果值不为空执行方法并获得方法的返回结果
+     * java8自带java.util.Optionals对象转当前Optionals
+     *
+     * @param function 执行方法 t -> r
+     * @param <R>      返回值泛型
+     * @return Optionals<R>
+     */
+    public <R> OptionalExt<R> flatsMap(Function<? super T, Optional<? extends R>> function) {
+        return isPresent() ? of(function.apply(value).orElse(null)) : empty();
+    }
+
+    /**
+     * 如果值不为空则执行
+     *
+     * @param consumer 执行方法 t -> {}
+     */
+    public void ifPresent(Consumer<? super T> consumer) {
+        if (isPresent()) consumer.accept(value);
+    }
+
+    /**
+     * 如果值不为空则执行否则为空执行
+     *
+     * @param consumer 执行方法 t -> {}
+     * @param runnable 否则执行方法 () -> {}
+     */
+    public void ifPresentOrElse(Consumer<? super T> consumer, Runnable runnable) {
+        if (isPresent()) consumer.accept(value);
+        else runnable.run();
+    }
+
+    /**
+     * 数据转换为stream流
+     *
+     * @return stream流
+     */
+    public Stream<T> stream() {
+        return isPresent() ? Stream.of(value) : Stream.empty();
+    }
+
+    /**
+     * 将为集合或者数组的数据转换为stream流
+     *
+     * @param <R> 数据泛型
+     * @return stream流
+     */
+    public <R> Stream<R> streams() {
+        return streams(Object.class);
+    }
+
+    /**
+     * 将为集合或者数组的数据转换为指定类型的stream流
+     *
+     * @param <R> 数据泛型
+     * @return stream流
+     */
+    @SuppressWarnings("unchecked")
+    public <R> Stream<R> streams(Class<? super R> clazz) {
+        if (value instanceof Collection) {
+            return ((Collection<R>) value).stream();
+        }
+        if (value instanceof Object[]) {
+            return Arrays.stream((R[]) value);
+        }
+        return (Stream<R>) stream();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof OptionalExt)) {
+            return false;
+        }
+        return Objects.equals(value, ((OptionalExt<?>) obj).value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(value);
+    }
+
+}

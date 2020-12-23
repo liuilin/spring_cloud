@@ -1,0 +1,834 @@
+package com.imugen.springcloud.model.handle;
+
+
+
+import com.imugen.springcloud.model.enums.Api;
+import com.imugen.springcloud.model.exception.WorkException;
+import com.imugen.springcloud.model.funtion.Fun;
+import com.imugen.springcloud.model.funtion.Get;
+import com.imugen.springcloud.model.funtion.Run;
+import java.util.Objects;
+import java.util.concurrent.locks.Lock;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+/**
+ * WorkException及Optional的扩展方法类
+ * <p>
+ * Created by hel on 2020/11/5 10:32
+ */
+@SuppressWarnings("unused")
+public class Work {
+
+    //region 异常抛出
+    /**
+     * 抛出异常
+     */
+    public static void errThrow() {
+        errThrow(Api.Default.InternalErr);
+    }
+
+    /**
+     * 抛出自定义异常
+     *
+     * @param api {@link Api}返回状态
+     */
+    public static void errThrow(Api api) {
+        throw new WorkException(api);
+    }
+
+    /**
+     * 抛出指定异常
+     *
+     * @param throwable 异常
+     */
+    public static void errThrow(Throwable throwable) {
+        throw new WorkException(throwable);
+    }
+
+    /**
+     * 抛出非法异常
+     */
+    public static void illThrow() {
+        errThrow(Api.Default.Default.IllegalOperation);
+    }
+
+    /**
+     * 验证参数正确的时候抛出非法异常提示
+     *
+     * @param condition 判断条件
+     */
+    public static void illThrow(boolean condition) {
+        okThrow(condition, Api.Default.IllegalOperation);
+    }
+
+    /**
+     * 验证参数错误的时候抛出异常
+     *
+     * @param condition 判断条件
+     */
+    public static void noThrow(boolean condition, Api api) {
+        okThrow(!condition, api);
+    }
+
+    /**
+     * 验证参数正确的时候抛出异常
+     *
+     * @param condition 判断条件
+     * @param api       {@link Api}返回状态
+     */
+    public static void okThrow(boolean condition, Api api) {
+        if (condition) {
+            errThrow(api);
+        }
+    }
+
+    /**
+     * 对比两个参数是否相等并做相应处理
+     *
+     * @param a   第一个参数
+     * @param b   第二个参数
+     * @param api {@link Api}返回状态
+     */
+    public static void eqThrow(Object a, Object b, Api api) {
+        okThrow(Objects.equals(a, b), api);
+    }
+
+    /**
+     * 对比两个参数是否不相等并做相应处理
+     *
+     * @param a   第一个参数
+     * @param b   第二个参数
+     * @param api {@link Api}返回状态
+     */
+    public static void neThrow(Object a, Object b, Api api) {
+        noThrow(Objects.equals(a, b), api);
+    }
+
+    /**
+     * 如果参数不存在则抛出参数错误异常并返回本身
+     *
+     * @param val 参数
+     * @param <T> 参数泛型
+     * @return 参数
+     */
+    public static <T> T isNullThrow(T val) {
+        return isNullThrow(val, Api.Default.IllegalOperation);
+    }
+
+    /**
+     * 如果参数为空则抛出指定异常并返回本身
+     *
+     * @param val 参数
+     * @param api {@link Api}返回状态
+     * @param <T> 参数泛型
+     * @return 参数
+     */
+    public static <T> T isNullThrow(T val, Api api) {
+        okThrow(Objects.isNull(val), api);
+        return Objects.requireNonNull(val);
+    }
+
+    /**
+     * 如果参数不为空则抛出异常
+     *
+     * @param val 参数
+     */
+    public static void nonNullThrow(Object val) {
+        nonNullThrow(val, Api.Default.IllegalOperation);
+    }
+
+    /**
+     * 如果参数为空则抛出异常
+     *
+     * @param val 参数
+     * @param api {@link Api}返回状态
+     */
+    public static void nonNullThrow(Object val, Api api) {
+        okThrow(Objects.nonNull(val), api);
+    }
+
+
+    /**
+     * 如果参数为空抛出异常否则获取参数的方法值
+     *
+     * @param val    参数
+     * @param valFun 参数方法
+     * @param <T>    参数泛型
+     * @param <R>    返回值泛型
+     * @return 参数方法结果
+     */
+    public static <T, R> R map(T val, Fun<T, R> valFun) {
+        return map(val, valFun, Api.Default.InternalErr);
+    }
+
+    /**
+     * 如果参数为空抛出异常否则获取参数的方法值
+     *
+     * @param val    参数
+     * @param valFun 参数方法
+     * @param api    {@link Api}返回状态
+     * @param <T>    参数泛型
+     * @param <R>    返回值泛型
+     * @return 参数方法结果
+     */
+    public static <T, R> R map(T val, Fun<T, R> valFun, Api api) {
+        return map(val, valFun, api, Exception.class, Boolean.TRUE);
+    }
+
+    /**
+     * 如果参数为空抛出异常否则获取参数的方法值
+     *
+     * @param val    参数
+     * @param valFun 参数方法
+     * @param api    {@link Api}返回状态
+     * @param eClass 异常类 抓取指定异常类并进行报错提示
+     * @param <T>    参数泛型
+     * @param <R>    返回值泛型
+     * @param <E>    传递的异常泛型
+     * @return 参数方法结果
+     */
+    public static <T, R, E extends Exception> R map(T val, Fun<T, R> valFun, Api api, Class<E> eClass) {
+        return map(val, valFun, api, eClass, Boolean.TRUE);
+    }
+
+    /**
+     * 如果参数为空抛出异常否则获取参数的方法值
+     *
+     * @param val     参数
+     * @param valFun  参数方法
+     * @param api     {@link Api}返回状态
+     * @param eClass  异常类 抓取指定异常类并进行报错提示
+     * @param isThrow 是否抛出除指定类异常外的异常
+     * @param <T>     参数泛型
+     * @param <R>     返回值泛型
+     * @param <E>     传递的异常泛型
+     * @return 参数方法结果
+     */
+    public static <T, R, E extends Exception> R map(T val, Fun<T, R> valFun, Api api, Class<E> eClass, boolean isThrow) {
+        try {
+            return valFun.apply(isNullThrow(val, api));
+        } catch (Throwable e) {
+            checkThrow(api, eClass, isThrow, e);
+        }
+        return null;
+    }
+
+    /**
+     * 检测是否抛出异常
+     *
+     * @param api     {@link Api}返回状态
+     * @param eClass  异常类 抓取指定异常类并进行报错提示
+     * @param isThrow 是否抛出除指定类异常外的异常
+     * @param e       当前将要抛出的异常对象
+     * @param <E>     传递的异常泛型
+     */
+    private static <E extends Exception> void checkThrow(Api api, Class<E> eClass, boolean isThrow, Throwable e) {
+        Class<? extends Throwable> aClass = e.getClass();
+        if (eClass.isAssignableFrom(aClass)) {
+            if (WorkException.class == aClass) {
+                throw (WorkException) e;
+            }
+            throw new WorkException(api, e);
+        } else if (isThrow) {
+            throw (RuntimeException) e;
+        }
+    }
+
+    /**
+     * 执行带有异常的方法块并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param get 方法
+     * @param <R> 返回参数泛型
+     * @return 参数 出现异常返回空
+     */
+    public static <R> R get(Get<R> get) {
+        return get(get, Api.Default.InternalErr);
+    }
+
+    /**
+     * 执行带有异常的方法块并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param get 方法
+     * @param api {@link Api}返回状态
+     * @param <R> 返回参数泛型
+     * @return 参数 出现异常返回空
+     */
+    public static <R> R get(Get<R> get, Api api) {
+        return get(get, api, Exception.class);
+    }
+
+    /**
+     * 执行带有异常的方法块并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param get    方法
+     * @param api    {@link Api}返回状态
+     * @param eClass 异常类 抓取指定异常类并进行报错提示
+     * @param <R>    返回参数泛型
+     * @param <E>    异常类泛型
+     * @return 参数 出现异常返回空
+     */
+    public static <R, E extends Exception> R get(Get<R> get, Api api, Class<E> eClass) {
+        return get(get, api, eClass, Boolean.TRUE);
+    }
+
+    /**
+     * 执行带有异常的方法块并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param get     方法
+     * @param api     {@link Api}返回状态
+     * @param eClass  异常类 抓取指定异常类并进行报错提示
+     * @param isThrow 是否抛出除指定类异常外的异常
+     * @param <R>     返回参数泛型
+     * @param <E>     异常类泛型
+     * @return 参数 出现异常返回空
+     */
+    public static <R, E extends Exception> R get(Get<R> get, Api api, Class<E> eClass, boolean isThrow) {
+        return getElse(get, null, api, eClass, isThrow);
+    }
+
+    /**
+     * 执行带有异常的方法块并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param get       方法
+     * @param elseParam 返回的指定参数
+     * @param <R>       返回参数泛型
+     * @return 参数 如果出现异常则返回参数为指定参数{elseParam}
+     */
+    public static <R> R getElse(Get<R> get, R elseParam) {
+        return getElse(get, elseParam, Api.Default.InternalErr);
+    }
+
+    /**
+     * 执行带有异常的方法块并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param get       方法
+     * @param elseParam 返回的指定参数
+     * @param api       {@link Api}返回状态
+     * @param <R>       返回参数泛型
+     * @return 参数 如果出现异常则返回参数为指定参数{elseParam}
+     */
+    public static <R> R getElse(Get<R> get, R elseParam, Api api) {
+        return getElse(get, elseParam, api, Exception.class);
+    }
+
+    /**
+     * 执行带有异常的方法块并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param get       方法
+     * @param elseParam 返回的指定参数
+     * @param api       {@link Api}返回状态
+     * @param eClass    异常类 抓取指定异常类并进行报错提示
+     * @param <R>       返回参数泛型
+     * @param <E>       异常类泛型
+     * @return 参数 如果出现异常则返回参数为指定参数{elseParam}
+     */
+    public static <R, E extends Exception> R getElse(Get<R> get, R elseParam, Api api, Class<E> eClass) {
+        return getElse(get, elseParam, api, eClass, true);
+    }
+
+    /**
+     * 执行带有异常的方法块并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param get       方法
+     * @param elseParam 返回的指定参数
+     * @param api       {@link Api}返回状态
+     * @param eClass    异常类 抓取指定异常类并进行报错提示
+     * @param isThrow   是否抛出除指定类异常外的异常
+     * @param <R>       返回参数泛型
+     * @param <E>       异常类泛型
+     * @return 参数 如果出现异常则返回参数为指定参数{elseParam}
+     */
+    public static <R, E extends Exception> R getElse(Get<R> get, R elseParam, Api api, Class<E> eClass, boolean isThrow) {
+        try {
+            return get.get();
+        } catch (Throwable e) {
+            checkThrow(api, eClass, isThrow, e);
+        }
+        return elseParam;
+    }
+
+
+
+    /**
+     * 执行带有异常的方法块 如果方法执行出现异常则抛出异常
+     *
+     * @param run 方法
+     */
+    public static void run(Run run) {
+        run(run, Api.Default.InternalErr);
+    }
+
+    /**
+     * 执行带有异常的方法块 如果方法执行出现异常则抛出指定异常
+     *
+     * @param run 方法
+     * @param api {@link Api}返回状态
+     */
+    public static void run(Run run, Api api) {
+        run(run, api, Exception.class);
+    }
+
+    /**
+     * 执行带有异常的方法块 如果方法执行出现异常则抛出指定异常
+     *
+     * @param run    方法
+     * @param api    {@link Api}返回状态
+     * @param eClass 异常类 抓取指定异常类并进行报错提示
+     */
+    public static <E extends Exception> void run(Run run, Api api, Class<E> eClass) {
+        run(run, api, eClass, true);
+    }
+
+    /**
+     * 执行带有异常的方法块 如果方法执行出现异常则抛出指定异常
+     *
+     * @param run     方法
+     * @param api     {@link Api}返回状态
+     * @param eClass  异常类 抓取指定异常类并进行报错提示
+     * @param isThrow 是否抛出除指定类异常外的异常
+     */
+    public static <E extends Exception> void run(Run run, Api api, Class<E> eClass, boolean isThrow) {
+        try {
+            run.run();
+        } catch (Throwable e) {
+            checkThrow(api, eClass, isThrow, e);
+        }
+    }
+
+    //endregion
+
+    //region 加锁
+    /**
+     * 加锁获得方法的返回值并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param lock RLock锁对象
+     * @param get  方法
+     * @param <R>  返回参数泛型
+     * @return 参数 出现异常返回空
+     */
+    public static <R> R lockGet(Lock lock, Get<R> get) {
+        return lockGet(lock, get, Api.Default.InternalErr);
+    }
+
+    /**
+     * 加锁获得方法的返回值并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param lock Lock锁对象
+     * @param get  方法
+     * @param api  {@link Api}返回状态
+     * @param <R>  返回参数泛型
+     * @return 参数 出现异常返回空
+     */
+    public static <R> R lockGet(Lock lock, Get<R> get, Api api) {
+        return lockGet(lock, get, api, Exception.class);
+    }
+
+    /**
+     * 加锁获得方法的返回值并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param lock Lock锁对象
+     * @param get  方法
+     * @param api  {@link Api}返回状态
+     * @param <R>  返回参数泛型
+     * @return 参数 出现异常返回空
+     */
+    public static <R, E extends Exception> R lockGet(Lock lock, Get<R> get, Api api, Class<E> eClass) {
+        return lockGet(lock, get, api, eClass, Boolean.TRUE);
+    }
+
+    /**
+     * 加锁获得方法的返回值并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param lock Lock锁对象
+     * @param get  方法
+     * @param api  {@link Api}返回状态
+     * @param <R>  返回参数泛型
+     * @return 参数 出现异常返回空
+     */
+    public static <R, E extends Exception> R lockGet(Lock lock, Get<R> get, Api api, Class<E> eClass, boolean isThrow) {
+        return lockGetElse(lock, get, null, api, eClass, isThrow);
+    }
+
+    /**
+     * 加锁获得方法的返回值并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param lock      Lock锁对象
+     * @param get       方法
+     * @param elseParam 返回的指定参数
+     * @param <R>       返回参数泛型
+     * @return 参数 如果出现异常则返回参数为指定参数{elseParam}
+     */
+    public static <R> R lockGetElse(Lock lock, Get<R> get, R elseParam) {
+        return lockGetElse(lock, get, elseParam, Api.Default.InternalErr);
+    }
+
+    /**
+     * 加锁获得方法的返回值并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param lock      Lock锁对象
+     * @param get       方法
+     * @param elseParam 返回的指定参数
+     * @param api       {@link Api}返回状态
+     * @param <R>       返回参数泛型
+     * @return 参数 如果出现异常则返回参数为指定参数{elseParam}
+     */
+    public static <R> R lockGetElse(Lock lock, Get<R> get, R elseParam, Api api) {
+        return lockGetElse(lock, get, elseParam, api, Exception.class);
+    }
+
+    /**
+     * 加锁获得方法的返回值并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param lock      Lock锁对象
+     * @param get       方法
+     * @param elseParam 返回的指定参数
+     * @param api       {@link Api}返回状态
+     * @param eClass    异常类 抓取指定异常类并进行报错提示
+     * @param <R>       返回参数泛型
+     * @param <E>       异常类泛型
+     * @return 参数 如果出现异常则返回参数为指定参数{elseParam}
+     */
+    public static <R, E extends Exception> R lockGetElse(Lock lock, Get<R> get, R elseParam, Api api, Class<E> eClass) {
+        return lockGetElse(lock, get, elseParam, api, eClass, true);
+    }
+
+    /**
+     * 加锁获得方法的返回值并获得方法的返回值 如果出现异常抛出指定异常
+     *
+     * @param lock      Lock锁对象
+     * @param get       方法
+     * @param elseParam 返回的指定参数
+     * @param api       {@link Api}返回状态
+     * @param eClass    异常类 抓取指定异常类并进行报错提示
+     * @param isThrow   是否抛出除指定类异常外的异常
+     * @param <R>       返回参数泛型
+     * @param <E>       异常类泛型
+     * @return 参数 如果出现异常则返回参数为指定参数{elseParam}
+     */
+    public static <R, E extends Exception> R lockGetElse(Lock lock, Get<R> get, R elseParam, Api api, Class<E> eClass, boolean isThrow) {
+        try {
+            lock.lock();
+            return get.get();
+        } catch (Throwable e) {
+            checkThrow(api, eClass, isThrow, e);
+            return elseParam;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * 加锁执行方法块 如果锁出现异常则抛出指定异常
+     *
+     * @param lock Lock锁对象
+     * @param run  方法
+     */
+    public static void lock(Lock lock, Run run) {
+        lock(lock, run, Api.Default.InternalErr);
+    }
+
+    /**
+     * 加锁执行方法块 如果锁出现异常则抛出指定异常
+     *
+     * @param lock Lock锁对象
+     * @param run  方法
+     * @param api  {@link Api}返回状态
+     */
+    public static void lock(Lock lock, Run run, Api api) {
+        lock(lock, run, api, Exception.class);
+    }
+
+    /**
+     * 加锁执行方法块 如果锁出现异常则抛出指定异常
+     *
+     * @param lock   Lock锁对象
+     * @param run    方法
+     * @param api    {@link Api}返回状态
+     * @param eClass 异常类 抓取指定异常类并进行报错提示
+     */
+    public static <E extends Exception> void lock(Lock lock, Run run, Api api, Class<E> eClass) {
+        lock(lock, run, api, eClass, true);
+    }
+
+    /**
+     * 加锁执行方法块 如果锁出现异常则抛出指定异常
+     *
+     * @param lock    Lock锁对象
+     * @param run     方法
+     * @param api     {@link Api}返回状态
+     * @param eClass  异常类 抓取指定异常类并进行报错提示
+     * @param isThrow 是否抛出除指定类异常外的异常
+     */
+    public static <E extends Exception> void lock(Lock lock, Run run, Api api, Class<E> eClass, boolean isThrow) {
+        try {
+            lock.lock();
+            run.run();
+        } catch (Throwable e) {
+            checkThrow(api, eClass, isThrow, e);
+        } finally {
+            lock.unlock();
+        }
+    }
+    //endregion
+
+    //region 有些想自己拦截的 并不想抛出去的时候，有些异常需要自己处理
+
+    /**
+     * 代替try catch
+     *
+     * @param $try   try代码块
+     * @param $catch catch代码块
+     */
+    public static void tryCatch(Run $try, Consumer<Throwable> $catch) {
+        tryCatch($try, $catch, Exception.class);
+    }
+
+    /**
+     * 代替try catch
+     *
+     * @param $try   try代码块
+     * @param $catch catch代码块
+     * @param eClass 异常类 抓取指定异常类并执行{$catch}
+     */
+    public static <E extends Exception> void tryCatch(Run $try, Consumer<Throwable> $catch, Class<E> eClass) {
+        tryCatch($try, $catch, eClass, true);
+    }
+
+    /**
+     * 代替try catch
+     *
+     * @param $try    try代码块
+     * @param $catch  catch代码块
+     * @param eClass  异常类 抓取指定异常类并执行{$catch}
+     * @param isThrow 是否抛出除指定类异常外的异常
+     */
+    public static <E extends Exception> void tryCatch(Run $try, Consumer<Throwable> $catch, Class<E> eClass, boolean isThrow) {
+        try {
+            $try.run();
+        } catch (Throwable e) {
+            if (eClass.isAssignableFrom(e.getClass())) {
+                $catch.accept(e);
+            } else if (isThrow) {
+                throw (RuntimeException) e;
+            }
+        }
+    }
+
+    /**
+     * 代替try catch 并获得try的返回值
+     *
+     * @param $try   try代码块
+     * @param $catch catch代码块
+     * @param <R>    返回参数泛型
+     * @return 参数
+     */
+    public static <R> R tryCatchGet(Get<R> $try, Consumer<Throwable> $catch) {
+        return tryCatchGet($try, $catch, Exception.class);
+    }
+
+    /**
+     * 代替try catch 并获得try的返回值
+     *
+     * @param $try   try代码块
+     * @param $catch catch代码块
+     * @param eClass 异常类 抓取指定异常类并执行{$catch}
+     * @param <R>    返回参数泛型
+     * @param <E>    异常类泛型
+     * @return 参数 出现异常返回空
+     */
+    public static <R, E extends Exception> R tryCatchGet(Get<R> $try, Consumer<Throwable> $catch, Class<E> eClass) {
+        return tryCatchGet($try, $catch, eClass, true);
+    }
+
+    /**
+     * 代替try catch 并获得try的返回值
+     *
+     * @param $try    try代码块
+     * @param $catch  catch代码块
+     * @param eClass  异常类 抓取指定异常类并执行{$catch}
+     * @param isThrow 是否抛出除指定类异常外的异常
+     * @param <R>     返回参数泛型
+     * @param <E>     异常类泛型
+     * @return 参数 出现异常返回空
+     */
+    public static <R, E extends Exception> R tryCatchGet(Get<R> $try, Consumer<Throwable> $catch, Class<E> eClass, boolean isThrow) {
+        try {
+            return $try.get();
+        } catch (Throwable e) {
+            if (eClass.isAssignableFrom(e.getClass())) {
+                $catch.accept(e);
+            }
+            if (isThrow) {
+                throw (RuntimeException) e;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 代替try catch 并获得try的返回值
+     *
+     * @param $try      try代码块
+     * @param $catch    catch代码块
+     * @param elseParam 返回的指定参数
+     * @param <R>       返回参数泛型
+     * @return 参数 如果出现异常则返回参数为指定参数{elseParam}
+     */
+    public static <R> R tryCatchGetElse(Get<R> $try, Consumer<Throwable> $catch, R elseParam) {
+        return tryCatchGetElse($try, $catch, elseParam, Exception.class);
+    }
+
+    /**
+     * 代替try catch 并获得try的返回值
+     *
+     * @param $try      try代码块
+     * @param $catch    catch代码块
+     * @param elseParam 返回的指定参数
+     * @param eClass    异常类 抓取指定异常类并执行{$catch}
+     * @param <R>       返回参数泛型
+     * @param <E>       异常类泛型
+     * @return 参数 如果出现异常则返回参数为指定参数{elseParam}
+     */
+    public static <R, E extends Exception> R tryCatchGetElse(Get<R> $try, Consumer<Throwable> $catch, R elseParam, Class<E> eClass) {
+        return tryCatchGetElse($try, $catch, elseParam, eClass, true);
+    }
+
+    /**
+     * 代替try catch 并获得try的返回值
+     *
+     * @param $try      try代码块
+     * @param $catch    catch代码块
+     * @param elseParam 返回的指定参数
+     * @param eClass    异常类 抓取指定异常类并执行{$catch}
+     * @param isThrow   是否抛出除指定类异常外的异常
+     * @param <R>       返回参数泛型
+     * @param <E>       异常类泛型
+     * @return 参数 如果出现异常则返回参数为指定参数{elseParam}
+     */
+    public static <R, E extends Exception> R tryCatchGetElse(Get<R> $try, Consumer<Throwable> $catch, R elseParam, Class<E> eClass, boolean isThrow) {
+        try {
+            return $try.get();
+        } catch (Throwable e) {
+            if (eClass.isAssignableFrom(e.getClass())) {
+                $catch.accept(e);
+            }
+            if (isThrow) {
+                throw (RuntimeException) e;
+            }
+        }
+        return elseParam;
+    }
+    //endregion
+
+    //region 如果满足xxx执行
+    /**
+     * 如果条件满足则执行
+     *
+     * @param condition 条件
+     * @param run       执行方法
+     */
+    public static void is(boolean condition, Runnable run) {
+        if (condition) {
+            run.run();
+        }
+    }
+
+    /**
+     * 如果条件满足则执行
+     *
+     * @param condition 条件
+     * @param $true     true执行方法
+     * @param $false    false执行方法
+     */
+    public static void isElse(boolean condition, Runnable $true, Runnable $false) {
+        if (condition) {
+            $true.run();
+        } else {
+            $false.run();
+        }
+    }
+
+    /**
+     * 如果条件满足则执行不满足返回null
+     *
+     * @param condition 条件
+     * @param get       执行方法
+     */
+    public static <T> T isGet(boolean condition, Supplier<T> get) {
+        return condition ? get.get() : null;
+    }
+
+    /**
+     * 如果条件满足则执行不满足返回{elseParam}
+     *
+     * @param condition 条件
+     * @param get       执行方法
+     * @param elseParam 否则参数
+     */
+    public static <T> T isGetOrElse(boolean condition, Supplier<T> get, T elseParam) {
+        return condition ? get.get() : elseParam;
+    }
+
+    /**
+     * 如果条件满足则执行不满足返回{elseParam}
+     *
+     * @param condition 条件
+     * @param trueGet   true执行方法
+     * @param falseGet  false执行方法
+     */
+    public static <T> T isGetOrGet(boolean condition, Supplier<T> trueGet, Supplier<T> falseGet) {
+        return condition ? trueGet.get() : falseGet.get();
+    }
+
+    /**
+     * 如果值为空则执行方法
+     *
+     * @param value    值
+     * @param runnable 执行方法
+     * @param <T>      值泛型
+     */
+    public static <T> void isNull(T value, Runnable runnable) {
+        if (Objects.isNull(value)) {
+            runnable.run();
+        }
+    }
+
+    /**
+     * 如果值为空则执行方法并获得返回值
+     *
+     * @param value    值
+     * @param supplier 执行方法
+     * @param <T>      值泛型
+     * @return 如果值为空获取执行方法的返回值
+     */
+    public static <T> T isNullGet(T value, Supplier<T> supplier) {
+        return Objects.isNull(value) ? supplier.get() : value;
+    }
+
+    /**
+     * 如果值不为空则执行方法
+     *
+     * @param value    值
+     * @param consumer 执行方法
+     * @param <T>      值泛型
+     */
+    public static <T> void nonNull(T value, Consumer<T> consumer) {
+        if (Objects.nonNull(value)) {
+            consumer.accept(value);
+        }
+    }
+    //endregion
+
+    /**
+     * 建立一个Optionals进行字段后续操作
+     *
+     * @param value 数据值
+     * @param <T>   泛型
+     * @return Optionals
+     */
+    public static <T> OptionalExt<T> of(T value) {
+        return OptionalExt.of(value);
+    }
+
+}

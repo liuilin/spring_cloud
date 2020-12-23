@@ -21,8 +21,7 @@ import org.springframework.web.client.RestTemplate;
 public class OrderController {
 
     public static final String PAYMENT_URL = "http://localhost:8081";
-    //    @Autowired
-//    private IOrderService orderService;
+
     @Resource
     private RestTemplate restTemplate;
 
@@ -31,20 +30,9 @@ public class OrderController {
         return restTemplate.postForObject(PAYMENT_URL, dto, CommonResult.class);
     }
 
-    //
-//    @DeleteMapping("/{id}")
-//    public CommonResult delete(@PathVariable String id, @Valid @RequestBody OrderDTO dto) {
-//        return new CommonResult(CommonCode.SUCCESS);
-//    }
-//
-//    @PutMapping("/{id}")
-//    public CommonResult update(@PathVariable String id, @Valid @RequestBody OrderDTO dto) {
-//        return new CommonResult(CommonCode.SUCCESS);
-//    }
-//
     @GetMapping("/{id}")
-    public CommonResult get(@Valid @PathVariable String id) {
-        return restTemplate.getForObject(PAYMENT_URL + "/pay/" + id, CommonResult.class);
+    public CommonResult get(@PathVariable String id) {
+        return restTemplate.getForObject(PAYMENT_URL + "/order/pay/info/" + id, CommonResult.class);
     }
 
 }

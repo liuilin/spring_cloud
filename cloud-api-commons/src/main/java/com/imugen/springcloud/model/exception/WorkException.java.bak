@@ -1,0 +1,43 @@
+package com.imugen.springcloud.model.exception;
+
+import lombok.Getter;
+
+/**
+ * @author mjy
+ * @date 2020-09-11
+ */
+public class WorkException extends RuntimeException {
+
+    /**
+     * 是否打印所有错误栈信息
+     */
+    @Getter
+    private boolean print;
+
+    public WorkException() {
+        super();
+    }
+
+    public WorkException(String message) {
+        super(message);
+    }
+
+    public WorkException(Throwable cause) {
+        super(cause);
+    }
+
+    public WorkException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public WorkException(Api api) {
+        this(api.getMsg());
+        this.print = api.isPrint();
+    }
+
+    public WorkException(Api api, Throwable cause) {
+        this(api.getMsg(), cause);
+        this.print = api.isPrint();
+    }
+
+}
