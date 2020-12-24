@@ -12,10 +12,10 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 @EnableEurekaClient
 @SpringBootApplication
 @MapperScan("com.imugen.springcloud.mapper")
-public class PaymentApplication8001 {
+public class PaymentApplication8002 {
 
     public static void main(String[] args) {
-        SpringApplication.run(PaymentApplication8001.class, args);
+        SpringApplication.run(PaymentApplication8002.class, args);
     }
 
 }    
