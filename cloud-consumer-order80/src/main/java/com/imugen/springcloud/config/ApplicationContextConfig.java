@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 public class ApplicationContextConfig {
 
     @Bean
-    @LoadBalanced
+//    @LoadBalanced // 默认是轮询，可在 com.imugen.myrule.MySelfRule 中改为随机
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }

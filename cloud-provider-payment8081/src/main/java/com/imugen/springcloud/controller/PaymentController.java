@@ -9,6 +9,7 @@ import com.imugen.springcloud.service.IPaymentService;
 import io.swagger.annotations.Api;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -25,6 +26,9 @@ public class PaymentController {
     @Autowired
     private IPaymentService paymentService;
 
+    @Value("${server.port}")
+    private String serverPort;
+
     @PostMapping("/saveOrUpdate")
     public CommonResult saveOrUpdate(@Valid @RequestBody PaymentDTO dto) {
         return CommonResult.complete(paymentService.saveOrUpdate(PaymentConvert.INSTANCE.convert(dto)));
@@ -40,4 +44,8 @@ public class PaymentController {
         return CommonResult.success(PaymentConvert.INSTANCE.convert(paymentService.getById(id)));
     }
 
+    @GetMapping("/payment/lb")
+    public String pay() {
+        return serverPort;
+    }
 }

@@ -44,8 +44,8 @@ public class PaymentController {
 //        return CommonResult.success(PaymentConvert.INSTANCE.convert(paymentService.getById(id)));
     }
 
-//    @GetMapping("/pay")
-//    public String pay() {
-//        return "spring" + serverPort + UUID.randomUUID().toString();
-//    }
+    @GetMapping("/lb")
+    public String pay() {
+        return serverPort;
+    }
 }

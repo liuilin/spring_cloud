@@ -18,7 +18,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @RestController
 @Api(tags = "订单")
-@RequestMapping("/order")
+@RequestMapping("/consumer/order")
 public class OrderController {
 
 //    public static final String PAYMENT_URL = "http://localhost:8081";
