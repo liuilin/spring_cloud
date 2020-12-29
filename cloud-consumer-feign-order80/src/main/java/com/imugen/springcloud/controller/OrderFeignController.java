@@ -2,6 +2,7 @@ package com.imugen.springcloud.controller;
 
 import com.imugen.springcloud.PaymentFeignService;
 import com.imugen.springcloud.model.CommonResult;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,4 +22,11 @@ public class OrderFeignController {
     public CommonResult getPaymentById(@PathVariable("id") Long id) {
         return paymentFeignService.getPaymentById(id);
     }
+
+    @GetMapping("/consumer/feign/timeout")
+    public String consumerFeignTimeout(){
+        //暂停一会儿线程
+        return paymentFeignService.paymentFeignTimeout();
+    }
+
 }

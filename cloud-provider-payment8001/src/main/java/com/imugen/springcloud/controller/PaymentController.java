@@ -6,6 +6,7 @@ import com.imugen.springcloud.model.CommonResult;
 import com.imugen.springcloud.model.dto.PaymentDTO;
 import com.imugen.springcloud.service.IPaymentService;
 import io.swagger.annotations.Api;
+import java.util.concurrent.TimeUnit;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +47,13 @@ public class PaymentController {
 
     @GetMapping("/lb")
     public String pay() {
+        return serverPort;
+    }
+
+    @GetMapping("/feign/timeout")
+    public String paymentFeignTimeout(){
+        //暂停一会儿线程
+        try { TimeUnit.SECONDS.sleep(3); } catch (InterruptedException e) { e.printStackTrace(); }
         return serverPort;
     }
 }
