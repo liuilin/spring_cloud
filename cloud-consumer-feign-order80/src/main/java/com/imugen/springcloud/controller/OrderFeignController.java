@@ -1,8 +1,7 @@
 package com.imugen.springcloud.controller;
 
-import com.imugen.springcloud.PaymentFeignService;
+import com.imugen.springcloud.feign.PaymentFeignService;
 import com.imugen.springcloud.model.CommonResult;
-import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

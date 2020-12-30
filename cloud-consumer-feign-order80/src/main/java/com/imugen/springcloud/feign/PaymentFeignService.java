@@ -1,4 +1,4 @@
-package com.imugen.springcloud;
+package com.imugen.springcloud.feign;
 
 import com.imugen.springcloud.model.CommonResult;
 import org.springframework.cloud.openfeign.FeignClient;
