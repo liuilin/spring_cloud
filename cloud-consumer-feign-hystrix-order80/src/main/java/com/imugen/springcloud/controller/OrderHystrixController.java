@@ -3,7 +3,6 @@ package com.imugen.springcloud.controller;
 import com.imugen.springcloud.feign.PaymentHystrixService;
 import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,18 +26,21 @@ public class OrderHystrixController {
     private String serverPort;
 
     @GetMapping("/consumer/payment/hystrix/ok/{id}")
-    public String paymentInfo_OK(@PathVariable("id") Integer id) {
-        String result = paymentHystrixService.paymentInfo_OK(id);
+    public String paymentInfoOK(@PathVariable("id") Integer id) {
+        String result = paymentHystrixService.paymentInfoOK(id);
         log.info("*******result:" + result);
         return result;
     }
 
     @GetMapping("/consumer/payment/hystrix/timeout/{id}")
-    @HystrixCommand(fallbackMethod = "paymentTimeOutFallbackMethod", commandProperties = {
-            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "1500")  //3秒钟以内就是正常的业务逻辑
-    })
-    public String paymentInfo_TimeOut(@PathVariable("id") Integer id) {
-        String result = paymentHystrixService.paymentInfo_TimeOut(id);
+//    @HystrixCommand(fallbackMethod = "paymentTimeOutFallbackMethod", commandProperties = {
+//            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "1500")  //3秒钟以内就是正常的业务逻辑
+//    })
+//    @HystrixCommand
+    public String paymentInfoTimeOut(@PathVariable("id") Integer id) {
+//        int i = 1 / 0;
+
+        String result = paymentHystrixService.paymentInfoTimeOut(id);
         log.info("*******result:" + result);
         return result;
     }
