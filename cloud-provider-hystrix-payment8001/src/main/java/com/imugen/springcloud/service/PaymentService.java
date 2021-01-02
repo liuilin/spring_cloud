@@ -4,14 +4,16 @@ import cn.hutool.core.util.IdUtil;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import java.util.concurrent.TimeUnit;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 /**
  * @author liuqiang
  * @since 2020-12-30
  */
 @Service
+@EnableScheduling
 public class PaymentService {
 
     public String paymentInfoOK(Integer id) {
@@ -34,13 +36,11 @@ public class PaymentService {
         return "调用成功 ==> 线程池：" + Thread.currentThread().getName() + "   paymentInfo_TimeOut,id：  " + id + "\t" + "呜呜呜" + " 耗时(秒)" + secondNum;
     }
 
+    // ==================================== circuit breaker 断路器 ====================================
+
     public String paymentInfo_TimeOutHandler(Integer id) {
         return "调用支付接口超时或异常,id is " + id + "，当前线程为：" + Thread.currentThread().getName();
     }
-
-
-    // ==================================== circuit breaker 断路器 ====================================
-
 
     /**
      * 服务熔断
@@ -66,5 +66,11 @@ public class PaymentService {
     public String paymentCircuitBreaker_fallback(Integer id) {
         return "id 不能负数，请稍候再试,(┬＿┬)/~~     id: " + id;
     }
+
+    @Scheduled(cron = "*/1 * * * * ?")
+    public void cron() {
+        System.out.println(1);
+    }
+
 
 }
