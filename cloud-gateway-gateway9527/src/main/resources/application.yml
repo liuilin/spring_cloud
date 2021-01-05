@@ -13,12 +13,26 @@ spring:
     name: cloud-gateway
   cloud:
     gateway:
+      # 经过测试，无需此配置也能利用微服务名进行路由进行负载均衡访问
+#      discovery:
+#        locator:
+#          enabled: true #开启从注册中心动态创建路由的功能，利用微服务名进行路由
       routes:
         - id: payment_routh #路由的ID，没有固定规则但要求唯一，建议配合服务名
-          uri: http://localhost:8001   #匹配后提供服务的路由地址
+#          uri: http://localhost:8001   #匹配后提供服务的路由地址
+          uri: lb://cloud-provider-payment
           predicates:
             - Path=/payment/**   #断言,路径相匹配的进行路由
+            - After=2021-01-05T17:12:19.048116400+08:00[Asia/Shanghai] #应用：系统提前上线了，配置什么时候才能访问
         - id: payment_routh2
-          uri: http://localhost:8001
+#          uri: http://localhost:8001
+          uri: lb://cloud-provider-payment
           predicates:
             - Path=/payment/lb   #断言,路径相匹配的进行路由
+            - After=2021-01-05T17:12:19.048116400+08:00[Asia/Shanghai] #应用：系统提前上线了，配置什么时候才能访问
+              #- Before=2017-01-20T17:42:47.789-07:00[America/Denver]
+              #- Cookie=username,zzyy
+              #- Header=X-Request-Id, \d+ #请求头要有X-Request-Id属性，并且值为正数
+              #- Host=**.atguigu.com
+              #- Method=GET
+              #- Query=username, \d+ # 要有参数名username并且值还要是正整数才能路由
