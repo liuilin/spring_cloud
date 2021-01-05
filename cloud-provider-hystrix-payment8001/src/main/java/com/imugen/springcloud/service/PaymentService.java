@@ -67,10 +67,10 @@ public class PaymentService {
         return "id 不能负数，请稍候再试,(┬＿┬)/~~     id: " + id;
     }
 
-    @Scheduled(cron = "*/1 * * * * ?")
-    public void cron() {
-        System.out.println(1);
-    }
+//    @Scheduled(cron = "*/1 * * * * ?")
+//    public void cron() {
+//        System.out.println(1);
+//    }
 
 
 }
