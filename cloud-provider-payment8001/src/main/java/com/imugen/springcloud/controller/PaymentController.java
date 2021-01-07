@@ -51,9 +51,18 @@ public class PaymentController {
     }
 
     @GetMapping("/feign/timeout")
-    public String paymentFeignTimeout(){
+    public String paymentFeignTimeout() {
         //暂停一会儿线程
-        try { TimeUnit.SECONDS.sleep(3); } catch (InterruptedException e) { e.printStackTrace(); }
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return serverPort;
+    }
+
+    @GetMapping("/zipkin")
+    public String paymentZipkin() {
+        return "zipkin from Lin.......";
     }
 }
