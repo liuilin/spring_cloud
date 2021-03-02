@@ -1,5 +1,6 @@
 package com.imugen.springcloud.controller;
 
+import cn.hutool.core.util.IdUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,7 +13,7 @@ public class FlowLimitController {
 
     @GetMapping("/lin")
     public String lin() {
-        return "lin......";
+        return "lin......" + IdUtil.simpleUUID();
     }
 
     @GetMapping("/daniel")
