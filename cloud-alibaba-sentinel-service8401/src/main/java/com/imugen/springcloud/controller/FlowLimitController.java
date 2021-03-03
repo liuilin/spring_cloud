@@ -13,7 +13,7 @@ public class FlowLimitController {
 
     @GetMapping("/lin")
     public String lin() {
-        return "lin......" + IdUtil.simpleUUID();
+        return "lin..." + IdUtil.simpleUUID();
     }
 
     @GetMapping("/daniel")
