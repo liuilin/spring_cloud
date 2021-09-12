@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
- * Nacos 配置中心.
+ * Nacos 配置中心
  * @author liuqiang
  * @since 2021-01-11
  */

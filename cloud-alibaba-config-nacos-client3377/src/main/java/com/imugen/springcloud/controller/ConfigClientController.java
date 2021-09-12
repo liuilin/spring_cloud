@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @author liuqiang
  * @since 2021-01-11
  */
-@RestController
 @RefreshScope
+@RestController
 public class ConfigClientController {
 
     @Value("${config.info}")
