@@ -23,11 +23,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/payment")
 public class PaymentController {
 
-    @Autowired
-    private IPaymentService paymentService;
+    private final IPaymentService paymentService;
 
     @Value("${server.port}")
     private String serverPort;
+
+    public PaymentController(IPaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
 
     @PostMapping("/saveOrUpdate")
     public CommonResult saveOrUpdate(@Valid @RequestBody PaymentDTO dto) {
