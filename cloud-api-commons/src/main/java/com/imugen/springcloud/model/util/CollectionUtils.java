@@ -7,6 +7,12 @@ import java.util.stream.Collectors;
 
 public class CollectionUtils {
 
+    // 检查 List 内容是否有重复
+    // check if a List contains any duplicate
+    public static <T> boolean areAllUnique(List<T> list){
+        return list.stream().allMatch(new HashSet<>()::add);
+    }
+
     public static <T> Set<T> asSet(T... objs) {
         return new HashSet<>(Arrays.asList(objs));
     }
